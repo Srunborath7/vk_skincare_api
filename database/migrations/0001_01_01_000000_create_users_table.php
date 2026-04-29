@@ -22,14 +22,14 @@ return new class extends Migration
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $collection) {
-            $collection->string('email')->primary();
+            $collection->string('email');
             $collection->string('token');
             $collection->timestamp('created_at')->nullable();
         });
 
         Schema::create('sessions', function (Blueprint $collection) {
-            $collection->string('id')->primary();
-            $collection->string('user_id')->nullable();
+            $collection->string('id');
+            $collection->foreignId('user_id')->nullable()->index();
             $collection->string('ip_address', 45)->nullable();
             $collection->text('user_agent')->nullable();
             $collection->longText('payload');

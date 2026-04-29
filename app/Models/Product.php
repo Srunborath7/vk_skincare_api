@@ -35,10 +35,10 @@ class Product extends Model
         return $this->belongsTo(Brand::class,'brand_id','_id');
     }
     public function user(){
-        return $this->belongsTo(Brand::class,'creator','_id');
+        return $this->belongsTo(User::class,'creator','_id');
     }
     public function category(){
-        return $this->belongsTo(Brand::class,'category_id','_id');
+        return $this->belongsTo(Category::class,'category_id','_id');
     }
 
 }

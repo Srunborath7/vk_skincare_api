@@ -23,7 +23,13 @@ class ProductController extends Controller
     }
     public function getTags()
     {
-        $tags = Product::distinct('tags');
+        $tags = Product::pluck('tags', 'id')
+            ->flatten()
+            ->map(fn($tag) => strtolower(trim($tag)))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         return $this->successApiResponse(
             $tags,

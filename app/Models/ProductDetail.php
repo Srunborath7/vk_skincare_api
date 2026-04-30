@@ -8,6 +8,7 @@ class ProductDetail extends Model
 {
     protected $collection = 'product_details';
     protected $fillable = [
+        'image_details',
         'skin_type',
         'product_type',
         'ingredients',

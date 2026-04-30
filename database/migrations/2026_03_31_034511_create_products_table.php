@@ -25,8 +25,8 @@ return new class extends Migration
             $collection->double("rating",3,2);
             $collection->integer('review_count')->default(0);
             $collection->string('description');
-            $collection->array('image');
-            $collection->array('image_url');
+            $collection->string('image');
+            $collection->string('image_url');
             $collection->ObjectId('brand_id');
             $collection->ObjectId('creator');
             $collection->ObjectId('category_id');

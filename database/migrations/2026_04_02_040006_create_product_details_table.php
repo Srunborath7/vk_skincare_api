@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('product_details', function (Blueprint $collection) {
             $collection->id();
+            $collection->array('image_details');
             $collection->array('skin_type');
             $collection->string('product_type');
             $collection->array('ingredients');

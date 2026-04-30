@@ -21,6 +21,16 @@ class ProductController extends Controller
         $product = Product::with(["user","category","brand"])->get();
         return $this->successApiResponse($product->load(["user","category","brand"]),"Get all products successfully!",200);
     }
+    public function getTags()
+    {
+        $tags = Product::distinct('tags');
+
+        return $this->successApiResponse(
+            $tags,
+            "Get all product tags successfully!",
+            200
+        );
+    }
 
     /**
      * Store a newly created resource in storage.

@@ -35,6 +35,7 @@ Route::prefix("brands")->middleware('auth:sanctum')->group(function(){
 });
 
 Route::prefix("products")->middleware('auth:sanctum')->group(function(){
+    Route::get("/tags",[ProductController::class, "getTags"]);
     Route::get("/search",[ProductController::class, "search"]);
     Route::get("/" , [ProductController::class, "index"]);
     Route::post("/",[ProductController::class, "store"]);

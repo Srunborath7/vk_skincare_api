@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -32,7 +33,12 @@ class UpdateProductRequest extends FormRequest
             'status' => 'required|boolean',
 
             'sku' => 'nullable|string|max:50|unique:products,sku',
-            'barcode' => 'nullable|string|max:50|unique:products,barcode',
+            'barcode' => [
+    'nullable',
+    'string',
+    'max:50',
+    Rule::unique('products', 'barcode')->ignore($this->route('id')),
+],
 
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',

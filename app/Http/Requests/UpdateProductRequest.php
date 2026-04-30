@@ -32,19 +32,21 @@ class UpdateProductRequest extends FormRequest
             'stock' => 'required|integer|min:0',
             'status' => 'required|boolean',
 
-            'sku' => 'nullable|string|max:50|unique:products,sku',
+            'sku' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('products', 'sku')->ignore($this->route('id')),
+            ],
             'barcode' => [
-    'nullable',
-    'string',
-    'max:50',
-    Rule::unique('products', 'barcode')->ignore($this->route('id')),
-],
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('products', 'barcode')->ignore($this->route('id')),
+            ],
 
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
-
-            'rating' => 'nullable|numeric|min:0|max:5',
-            'review_count' => 'nullable|integer|min:0',
 
             'description' => 'nullable|string',
 

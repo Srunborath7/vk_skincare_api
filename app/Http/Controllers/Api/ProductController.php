@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
@@ -77,9 +78,34 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProductRequest $request, string $id)
     {
-        //
+        $user = $request->user();
+        $product = Product::find($id, ['*']);
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        $validated = $request->validated();
+        $validated["creator"] = $user->id;
+        if ($request->hasFile("image")) {
+            if ($product->image_public_id) {
+                Cloudinary::uploadApi()->destroy($product->image_public_id);
+            }
+
+            $upload = Cloudinary::uploadApi()->upload(
+                $request->file("image")->getRealPath(),
+                ["folder" => "vk_skincare/products"]
+            );
+
+            $validated["image_url"] = $upload['secure_url'];
+            $validated["image_public_id"] = $upload['public_id'];
+        }
+        $product->update($validated);
+        return $this->successApiResponse($product, "Product updated successfully!", 200);
     }
 
     /**
@@ -87,6 +113,14 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::find($id, ['*']);
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        if ($product->image_public_id) {
+            Cloudinary::uploadApi()->destroy($product->image_public_id);
+        }
+        $product->delete();
+        return $this->successApiResponse("Deleted product successfully!", 200);
     }
 }

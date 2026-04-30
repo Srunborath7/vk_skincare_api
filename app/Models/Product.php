@@ -40,5 +40,7 @@ class Product extends Model
     public function category(){
         return $this->belongsTo(Category::class,'category_id','_id');
     }
-
+    public function productDetail(){
+        return $this->hasOne(ProductDetail::class,'product_id','_id');
+    }
 }

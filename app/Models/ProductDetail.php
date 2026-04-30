@@ -22,4 +22,10 @@ class ProductDetail extends Model
         'product_id',
         'creator'
     ];
+    public function product(){
+        return $this->belongsTo(Product::class,'product_id','_id');
+    }
+    public function user(){
+        return $this->belongsTo(User::class,'creator','_id');
+    }
 }

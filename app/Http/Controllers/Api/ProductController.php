@@ -19,8 +19,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::with(["user","category","brand"])->get();
-        return $this->successApiResponse($product->load(["user","category","brand"]),"Get all products successfully!",200);
+        $product = Product::with(["user","category","brand","productDetail"])->get();
+        return $this->successApiResponse($product->load(["user","category","brand","productDetail"]),"Get all products successfully!",200);
     }
     public function getTags()
     {

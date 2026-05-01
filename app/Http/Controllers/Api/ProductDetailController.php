@@ -18,7 +18,7 @@ class ProductDetailController extends Controller
     use ApiResponseTrait;
     public function index()
     {
-        $productDetails = ProductDetail::with(['product','category','brand','user'])->get();  
+        $productDetails = ProductDetail::with(['product','user'])->get();  
         return $this->successApiResponse($productDetails, "Get all product details successfully!", 200);
     }
     /**
@@ -80,7 +80,7 @@ public function store(CreateProductDetailRequest $request)
         if (!$user) {
             return $this->errorApiResponse('Unauthorized', 401);
         }
-        $productDetail = ProductDetail::with(['product','category','brand','user'])->findOrFail($id);
+        $productDetail = ProductDetail::with(['product','user'])->findOrFail($id);
         return $this->successApiResponse($productDetail, "Get product detail successfully!", 200);
     }
 

@@ -9,6 +9,7 @@ class ProductDetail extends Model
     protected $collection = 'product_details';
     protected $fillable = [
         'image_details',
+        'image_details_public_ids',
         'skin_type',
         'product_type',
         'ingredients',
@@ -25,6 +26,7 @@ class ProductDetail extends Model
     public function product(){
         return $this->belongsTo(Product::class,'product_id','_id');
     }
+    
     public function user(){
         return $this->belongsTo(User::class,'creator','_id');
     }

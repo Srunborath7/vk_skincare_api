@@ -74,7 +74,7 @@ public function store(CreateProductDetailRequest $request)
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $user = $request->user();
         if (!$user) {

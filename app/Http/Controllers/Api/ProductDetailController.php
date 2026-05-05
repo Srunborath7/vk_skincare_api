@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateProductDetailRequest;
+use App\Http\Requests\UpdateProductDetailRequest;
 use App\Models\Product;
 use App\Models\ProductDetail;
 use App\Traits\ApiResponseTrait;
@@ -87,9 +88,61 @@ public function store(CreateProductDetailRequest $request)
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProductDetailRequest $request, string $id)
     {
-        //
+        $user = $request->user();
+        if (!$user) {
+            return $this->errorApiResponse('Unauthorized', 401);
+        }
+
+        $productDetail = ProductDetail::findOrFail($id);
+
+        if (!$productDetail) {
+            return $this->errorApiResponse('Product detail not found', 404);
+        }
+
+        $validated = $request->validated();
+
+        $product = Product::findOrFail($request->input('product_id'));
+
+        if (!$product) {
+            return $this->errorApiResponse('Product not found', 404);
+        }
+
+        $folderName = "vk_skincare/products/" .
+            strtolower(str_replace(' ', '_', $product->name));
+
+        $imageUrls = [];
+        $imagePublicIds = [];
+
+        if ($request->hasFile('image_details')) {
+            foreach ($request->file('image_details') as $index => $image) {
+
+                if (isset($productDetail->image_details_public_ids[$index])) {
+                    Cloudinary::uploadApi()->destroy($productDetail->image_details_public_ids[$index]);
+                }
+
+                $upload = Cloudinary::uploadApi()->upload(
+                    $image->getRealPath(),
+                    ["folder" => $folderName]
+                );
+
+                $imageUrls[] = $upload['secure_url'];
+                $imagePublicIds[] = $upload['public_id'];
+            }
+        }
+
+        $validated['image_details'] = $imageUrls;
+        $validated['image_details_public_ids'] = $imagePublicIds;
+        $validated['creator'] = $user->id;
+
+        $productDetail->update($validated);
+
+        return $this->successApiResponse(
+            $productDetail,
+            "Product detail updated successfully!",
+            200
+        );
     }
 
     /**

@@ -22,7 +22,7 @@ class UpdateProductDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image_details' => 'required|array|min:1|max:3',
+            'image_details' => 'nullable|array|min:1|max:3',
             'image_details.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
 
             'skin_type' => 'required|string',

@@ -114,6 +114,15 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         $product = Product::find($id, ['*']);
+        $productDetail = $product->productDetail;
+        if ($productDetail) {
+            if ($productDetail->image_details_public_ids) {
+                foreach ($productDetail->image_details_public_ids as $publicId) {
+                    Cloudinary::uploadApi()->destroy($publicId);
+                }
+            }
+            $productDetail->delete();
+        }
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }

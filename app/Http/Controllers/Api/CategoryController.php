@@ -55,7 +55,7 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, string $id)
     {
         $user = $request->user();
-        $category = Category::find($id);
+        $category = Category::find($id, ['*']);
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -76,7 +76,7 @@ class CategoryController extends Controller
     public function destroy(Request $request , string $id)
     {
         $user = $request->user();
-        $category = Category::find($id);
+        $category = Category::find($id, ['*']);
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }

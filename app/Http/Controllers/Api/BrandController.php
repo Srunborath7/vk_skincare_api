@@ -75,7 +75,7 @@ class BrandController extends Controller
             return $this->errorApiResponse("Unauthorized! please login account.", 401);
         }
 
-        $brand = Brand::find($id);
+        $brand = Brand::find($id, ['*']);
         if (!$brand) {
             return $this->errorApiResponse("Brand not found!", 404);
         }
@@ -119,7 +119,7 @@ class BrandController extends Controller
             return $this->errorApiResponse("Unauthorized! please login account.", 401);
         }
 
-        $brand = Brand::find($id);
+        $brand = Brand::find($id, ['*']);
         if (!$brand) {
             return $this->errorApiResponse("Brand not found!", 404);
         }

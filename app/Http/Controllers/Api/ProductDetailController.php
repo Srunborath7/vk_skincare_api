@@ -19,86 +19,17 @@ class ProductDetailController extends Controller
     use ApiResponseTrait;
     public function index()
     {
-        $productDetails = ProductDetail::with(['product','user'])->get();  
+        $productDetails = ProductDetail::with(['product', 'user'])->get();
         return $this->successApiResponse($productDetails, "Get all product details successfully!", 200);
     }
     /**
      * Store a newly created resource in storage.
      */
-public function store(CreateProductDetailRequest $request)
-{
-    $user = $request->user();
-    if (!$user) {
-        return $this->errorApiResponse('Unauthorized', 401);
-    }
-
-    $validated = $request->validated();
-
-    $product = Product::findOrFail($request->input('product_id'));
-
-    if (!$product) {
-        return $this->errorApiResponse('Product not found', 404);
-    }
-
-    $folderName = "vk_skincare/products/" .
-        strtolower(str_replace(' ', '_', $product->name));
-
-    $imageUrls = [];
-    $imagePublicIds = [];
-
-    if ($request->hasFile('image_details')) {
-        foreach ($request->file('image_details') as $image) {
-
-            $upload = Cloudinary::uploadApi()->upload(
-                $image->getRealPath(),
-                ["folder" => $folderName]
-            );
-
-            $imageUrls[] = $upload['secure_url'];
-            $imagePublicIds[] = $upload['public_id'];
-        }
-    }
-
-    $validated['image_details'] = $imageUrls;
-    $validated['image_details_public_ids'] = $imagePublicIds;
-    $validated['creator'] = $user->id;
-
-    $productDetail = ProductDetail::create($validated);
-
-    return $this->successApiResponse(
-        $productDetail,
-        "Product detail created successfully!",
-        201
-    );
-}
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Request $request, string $id)
+    public function store(CreateProductDetailRequest $request)
     {
         $user = $request->user();
         if (!$user) {
             return $this->errorApiResponse('Unauthorized', 401);
-        }
-        $productDetail = ProductDetail::with(['product','user'])->findOrFail($id);
-        return $this->successApiResponse($productDetail, "Get product detail successfully!", 200);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProductDetailRequest $request, string $id)
-    {
-        $user = $request->user();
-        if (!$user) {
-            return $this->errorApiResponse('Unauthorized', 401);
-        }
-
-        $productDetail = ProductDetail::findOrFail($id);
-
-        if (!$productDetail) {
-            return $this->errorApiResponse('Product detail not found', 404);
         }
 
         $validated = $request->validated();
@@ -116,11 +47,7 @@ public function store(CreateProductDetailRequest $request)
         $imagePublicIds = [];
 
         if ($request->hasFile('image_details')) {
-            foreach ($request->file('image_details') as $index => $image) {
-
-                if (isset($productDetail->image_details_public_ids[$index])) {
-                    Cloudinary::uploadApi()->destroy($productDetail->image_details_public_ids[$index]);
-                }
+            foreach ($request->file('image_details') as $image) {
 
                 $upload = Cloudinary::uploadApi()->upload(
                     $image->getRealPath(),
@@ -134,6 +61,106 @@ public function store(CreateProductDetailRequest $request)
 
         $validated['image_details'] = $imageUrls;
         $validated['image_details_public_ids'] = $imagePublicIds;
+        $validated['creator'] = $user->id;
+
+        $productDetail = ProductDetail::create($validated);
+
+        return $this->successApiResponse(
+            $productDetail,
+            "Product detail created successfully!",
+            201
+        );
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Request $request, string $id)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return $this->errorApiResponse('Unauthorized', 401);
+        }
+        $productDetail = ProductDetail::with(['product', 'user'])->findOrFail($id);
+        return $this->successApiResponse($productDetail, "Get product detail successfully!", 200);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateProductDetailRequest $request, string $id)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return $this->errorApiResponse('Unauthorized', 401);
+        }
+
+        $productDetail = ProductDetail::findOrFail($id);
+
+        $validated = $request->validated();
+
+        $product = Product::findOrFail(
+            $request->input('product_id')
+        );
+
+        $folderName = "vk_skincare/products/" .
+            strtolower(str_replace(' ', '_', $product->name));
+        $imageUrls = $productDetail->image_details ?? [];
+
+        $imagePublicIds =
+            $productDetail->image_details_public_ids ?? [];
+
+        $existingImages =
+            $request->existing_images ?? [];
+
+        foreach ($imageUrls as $index => $oldUrl) {
+
+            if (!in_array($oldUrl, $existingImages)) {
+
+                // DELETE FROM CLOUDINARY
+                if (isset($imagePublicIds[$index])) {
+
+                    Cloudinary::uploadApi()->destroy(
+                        $imagePublicIds[$index]
+                    );
+                }
+
+                unset($imageUrls[$index]);
+                unset($imagePublicIds[$index]);
+            }
+        }
+
+        $imageUrls = array_values($imageUrls);
+
+        $imagePublicIds = array_values($imagePublicIds);
+
+        if ($request->hasFile('image_details')) {
+
+            foreach ($request->file('image_details') as $image) {
+
+                $upload = Cloudinary::uploadApi()->upload(
+                    $image->getRealPath(),
+                    [
+                        "folder" => $folderName
+                    ]
+                );
+
+                $imageUrls[] = $upload['secure_url'];
+
+                $imagePublicIds[] = $upload['public_id'];
+            }
+        }
+
+        $imageUrls = array_slice($imageUrls, 0, 3);
+
+        $imagePublicIds = array_slice($imagePublicIds, 0, 3);
+
+        $validated['image_details'] = $imageUrls;
+
+        $validated['image_details_public_ids'] =
+            $imagePublicIds;
+
         $validated['creator'] = $user->id;
 
         $productDetail->update($validated);

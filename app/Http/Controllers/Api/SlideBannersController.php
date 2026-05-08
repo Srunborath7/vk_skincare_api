@@ -20,7 +20,6 @@ class SlideBannersController extends Controller
     {
         $banners = SlideBanners::with("user")->get();
         return $this->successApiResponse($banners->load("user"), "Get all slide banners successfully!", 200);
-
     }
 
     /**
@@ -29,23 +28,33 @@ class SlideBannersController extends Controller
     public function store(CreateSlideBannersRequest $request)
     {
         $user = $request->user();
-        if(!$user){
+
+        if (!$user) {
             return $this->errorApiResponse("Unauthorized", 401);
         }
+
         $validated = $request->validated();
         $validated["creator"] = $user->id;
+
         if ($request->hasFile("banner_image")) {
 
-            $upload = Cloudinary::uploadApi()->upload(
-                $request->file("banner_image")->getRealPath(),
-                ["folder" => "vk_skincare/banners"]
-            );
+            $uploadedFile = $request->file("banner_image");
 
-            $validated["banner_image_url"] = $upload['secure_url'];
-            $validated["banner_image_public_id"] = $upload['public_id'];
+            $uploadResult = Cloudinary::upload($uploadedFile->getRealPath(), [
+                "folder" => "vk_skincare/banners"
+            ]);
+
+            $validated["banner_image_url"] = $uploadResult->getSecurePath();
+            $validated["banner_image_public_id"] = $uploadResult->getPublicId();
         }
+
         $banner = SlideBanners::create($validated);
-        return $this->successApiResponse($banner, "Create slide banner successfully!", 201);
+
+        return $this->successApiResponse(
+            $banner,
+            "Create slide banner successfully!",
+            201
+        );
     }
 
     /**
@@ -54,7 +63,7 @@ class SlideBannersController extends Controller
     public function show(string $id)
     {
         $banner = SlideBanners::with("user")->find($id, ["*"]);
-        if(!$banner){
+        if (!$banner) {
             return $this->errorApiResponse("Banner not found", 404);
         }
         return $this->successApiResponse($banner->load("user"), "Get slide banner successfully!", 200);
@@ -66,11 +75,11 @@ class SlideBannersController extends Controller
     public function update(UpdateSlideBannersRequest $request, string $id)
     {
         $user = $request->user();
-        if(!$user){
+        if (!$user) {
             return $this->errorApiResponse("Unauthorized", 401);
         }
         $banner = SlideBanners::find($id, ["*"]);
-        if(!$banner){
+        if (!$banner) {
             return $this->errorApiResponse("Banner not found", 404);
         }
         $validated = $request->validated();
@@ -97,7 +106,7 @@ class SlideBannersController extends Controller
     public function destroy(string $id)
     {
         $banner = SlideBanners::find($id, ["*"]);
-        if(!$banner){
+        if (!$banner) {
             return $this->errorApiResponse("Banner not found", 404);
         }
         if ($banner->banner_image_public_id) {

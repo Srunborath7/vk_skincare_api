@@ -34,15 +34,15 @@ class SlideBannersController extends Controller
         }
         $validated = $request->validated();
         $validated["creator"] = $user->id;
-        if ($request->hasFile("image")) {
+        if ($request->hasFile("banner_image")) {
 
             $upload = Cloudinary::uploadApi()->upload(
-                $request->file("image")->getRealPath(),
+                $request->file("banner_image")->getRealPath(),
                 ["folder" => "vk_skincare/banners"]
             );
 
-            $validated["image_url"] = $upload['secure_url'];
-            $validated["image_public_id"] = $upload['public_id'];
+            $validated["banner_image_url"] = $upload['secure_url'];
+            $validated["banner_image_public_id"] = $upload['public_id'];
         }
         $banner = SlideBanners::create($validated);
         return $this->successApiResponse($banner, "Create slide banner successfully!", 201);
@@ -74,18 +74,18 @@ class SlideBannersController extends Controller
             return $this->errorApiResponse("Banner not found", 404);
         }
         $validated = $request->validated();
-        if ($request->hasFile("image")) {
-            if ($banner->image_public_id) {
-                Cloudinary::uploadApi()->destroy($banner->image_public_id);
+        if ($request->hasFile("banner_image")) {
+            if ($banner->banner_image_public_id) {
+                Cloudinary::uploadApi()->destroy($banner->banner_image_public_id);
             }
 
             $upload = Cloudinary::uploadApi()->upload(
-                $request->file("image")->getRealPath(),
+                $request->file("banner_image")->getRealPath(),
                 ["folder" => "vk_skincare/banners"]
             );
 
-            $validated["image_url"] = $upload['secure_url'];
-            $validated["image_public_id"] = $upload['public_id'];
+            $validated["banner_image_url"] = $upload['secure_url'];
+            $validated["banner_image_public_id"] = $upload['public_id'];
         }
         $banner->update($validated);
         return $this->successApiResponse($banner, "Update slide banner successfully!", 200);
@@ -100,8 +100,8 @@ class SlideBannersController extends Controller
         if(!$banner){
             return $this->errorApiResponse("Banner not found", 404);
         }
-        if ($banner->image_public_id) {
-            Cloudinary::uploadApi()->destroy($banner->image_public_id);
+        if ($banner->banner_image_public_id) {
+            Cloudinary::uploadApi()->destroy($banner->banner_image_public_id);
         }
         $banner->delete();
         return $this->successApiResponse(null, "Delete slide banner successfully!", 200);

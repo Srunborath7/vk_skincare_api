@@ -9,9 +9,9 @@ class SlideBanners extends Model
     protected $fillable = [
         'title',
         'desc',
-        'image',
-        'image_url',
-        'image_public_id',
+        'banner_image',
+        'banner_image_url',
+        'banner_image_public_id',
         'creator'
     ];
 

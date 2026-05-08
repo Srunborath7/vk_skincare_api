@@ -62,4 +62,7 @@ class User extends Authenticatable
     public function productDetail(){
         return $this->hasMany(ProductDetail::class, "creator", "_id");
     }
+    public function slideBanner(){
+        return $this->hasMany(SlideBanners::class, "creator", "_id");
+    }
 }

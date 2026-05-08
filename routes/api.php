@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductDetailController;
+use App\Http\Controllers\Api\SlideBannersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -50,4 +51,11 @@ Route::prefix("product-details")->middleware('auth:sanctum')->group(function(){
     Route::post("/",[ProductDetailController::class, "store"]);
     Route::put("/{id}",[ProductDetailController::class, "update"]);
     Route::delete("/{id}",[ProductDetailController::class, "destroy"]);
+});
+Route::prefix("slide-banners")->group(function(){
+    Route::get("/" , [SlideBannersController::class, "index"]);
+    Route::get("/{id}" , [SlideBannersController::class, "show"]);
+    Route::post("/",[SlideBannersController::class, "store"]);
+    Route::put("/{id}",[SlideBannersController::class, "update"]);
+    Route::delete("/{id}",[SlideBannersController::class, "destroy"]);
 });

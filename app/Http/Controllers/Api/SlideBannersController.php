@@ -7,6 +7,7 @@ use App\Http\Requests\CreateSlideBannersRequest;
 use App\Http\Requests\UpdateSlideBannersRequest;
 use App\Models\SlideBanners;
 use App\Traits\ApiResponseTrait;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 
 class SlideBannersController extends Controller
@@ -33,6 +34,16 @@ class SlideBannersController extends Controller
         }
         $validated = $request->validated();
         $validated["creator"] = $user->id;
+        if ($request->hasFile("image")) {
+
+            $upload = Cloudinary::uploadApi()->upload(
+                $request->file("image")->getRealPath(),
+                ["folder" => "vk_skincare/banners"]
+            );
+
+            $validated["image_url"] = $upload['secure_url'];
+            $validated["image_public_id"] = $upload['public_id'];
+        }
         $banner = SlideBanners::create($validated);
         return $this->successApiResponse($banner, "Create slide banner successfully!", 201);
     }
@@ -63,6 +74,19 @@ class SlideBannersController extends Controller
             return $this->errorApiResponse("Banner not found", 404);
         }
         $validated = $request->validated();
+        if ($request->hasFile("image")) {
+            if ($banner->image_public_id) {
+                Cloudinary::uploadApi()->destroy($banner->image_public_id);
+            }
+
+            $upload = Cloudinary::uploadApi()->upload(
+                $request->file("image")->getRealPath(),
+                ["folder" => "vk_skincare/banners"]
+            );
+
+            $validated["image_url"] = $upload['secure_url'];
+            $validated["image_public_id"] = $upload['public_id'];
+        }
         $banner->update($validated);
         return $this->successApiResponse($banner, "Update slide banner successfully!", 200);
     }
@@ -75,6 +99,9 @@ class SlideBannersController extends Controller
         $banner = SlideBanners::find($id, ["*"]);
         if(!$banner){
             return $this->errorApiResponse("Banner not found", 404);
+        }
+        if ($banner->image_public_id) {
+            Cloudinary::uploadApi()->destroy($banner->image_public_id);
         }
         $banner->delete();
         return $this->successApiResponse(null, "Delete slide banner successfully!", 200);

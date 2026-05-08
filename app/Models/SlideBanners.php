@@ -10,6 +10,8 @@ class SlideBanners extends Model
         'title',
         'desc',
         'image',
+        'image_url',
+        'image_public_id',
         'creator'
     ];
 

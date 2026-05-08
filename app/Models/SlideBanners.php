@@ -6,6 +6,7 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class SlideBanners extends Model
 {
+    protected $collection = 'slide_banners';
     protected $fillable = [
         'title',
         'desc',

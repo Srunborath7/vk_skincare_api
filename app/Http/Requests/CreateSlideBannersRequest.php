@@ -24,7 +24,7 @@ class CreateSlideBannersRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'desc' => 'required|string|max:255',
-            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
         ];
     }
 }
